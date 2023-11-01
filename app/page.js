@@ -18,8 +18,35 @@ export default function Home() {
     });
   }, []);
 
-  const addToCart = (product) => {
-    setCart([...cart, { ...product }]);
+  const addToCart = (productToAdd) => {
+    if (cart.length > 0) {
+      cart.forEach((product, k) => {
+        if (product.product.title === productToAdd.title) {
+          product.amount = product.amount + 1;
+          removeFromCart(product.product);
+        } else if (product.product.title !== productToAdd.title) {
+          setCart([
+            ...cart,
+            {
+              ...{
+                product: productToAdd,
+                amount: 1,
+              },
+            },
+          ]);
+        }
+      });
+    } else if (cart.length === 0) {
+      setCart([
+        ...cart,
+        {
+          ...{
+            product: productToAdd,
+            amount: 1,
+          },
+        },
+      ]);
+    }
   };
   const removeFromCart = (productToRemove) => {
     setCart(cart.filter((product) => product !== productToRemove));
@@ -35,6 +62,32 @@ export default function Home() {
     return roundedNumber;
   };
 
+  const getTotalAmount = () => {
+    let number = cart.reduce((sum, { amount }) => sum + amount, 0);
+    return number;
+  };
+
+  const renderCartLength = () => {
+    getTotalAmount();
+  };
+
+  const renderHeader = () => (
+    <header class="bg-gray-700 h-16 flex flex-row">
+      <button
+        onClick={() => navigateTo(PAGE_PRODUCTS)}
+        class="text-2xl  ml-auto p-4"
+      >
+        Products
+      </button>
+      <button
+        onClick={() => navigateTo(PAGE_CART)}
+        class="text-2xl mr-auto p-4 flex flex-row"
+      >
+        Cart {cart.length > 0 && <h1>({getTotalAmount()})</h1>}
+      </button>
+    </header>
+  );
+
   const renderCart = () => (
     <>
       <div class="body w-3/4 ml-auto mr-auto">
@@ -47,14 +100,24 @@ export default function Home() {
                   key={key}
                   class="flex flex-row border border-gray-500 rounded-lg bg-gray-600 h-20 mt-1.5"
                 >
-                  <img src={product.image} alt="image" class="p-1"></img>
+                  <img
+                    src={product.product.image}
+                    alt="image"
+                    class="p-1"
+                  ></img>
 
                   <h1 class="text-center text-2xl mt-auto mb-auto ml-2">
-                    {product.title}
+                    {product.product.title}
                   </h1>
                   <h1 class="text-2xl mt-auto mb-auto ml-auto mr-3">
-                    ${product.price}
+                    ${product.product.price}
                   </h1>
+                  {product.amount > 1 && (
+                    <h1 class="text-2xl mt-auto mb-auto mr-3">
+                      * {product.amount}
+                    </h1>
+                  )}
+
                   <button
                     onClick={() => removeFromCart(product)}
                     class="place-self-center p-4 mr-3 bg-blue-600 bg-opacity-75 border border-blue-700 rounded-xl"
@@ -116,20 +179,9 @@ export default function Home() {
 
   return (
     <main>
-      <header class="bg-gray-700 h-16 flex flex-row">
-        <button
-          onClick={() => navigateTo(PAGE_PRODUCTS)}
-          class="text-2xl  ml-auto p-4"
-        >
-          Products
-        </button>
-        <button
-          onClick={() => navigateTo(PAGE_CART)}
-          class="text-2xl mr-auto p-4 flex flex-row"
-        >
-          Cart {cart.length > 0 && <h1>({cart.length})</h1>}
-        </button>
-      </header>
+      {renderCartLength()}
+      {renderHeader()}
+
       {page === PAGE_PRODUCTS && renderProducts()}
       {page === PAGE_CART && renderCart()}
     </main>
