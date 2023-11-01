@@ -19,34 +19,33 @@ export default function Home() {
   }, []);
 
   const addToCart = (productToAdd) => {
-    console.log(cart);
     if (cart.length > 0) {
+      let yes = false;
+
       cart.forEach((product, k) => {
         if (product.product.id === productToAdd.id) {
           product.amount = product.amount + 1;
           removeFromCart(product.product);
-        } else if (product.product.title !== productToAdd.title) {
-          setCart([
-            ...cart,
-            {
-              ...{
-                product: productToAdd,
-                amount: 1,
-                id: productToAdd.id,
-              },
-            },
-          ]);
+          yes = true;
         }
       });
-    } else if (cart.length === 0) {
-      setCart([
-        ...cart,
-        {
-          ...{
+
+      if (!yes) {
+        setCart([
+          ...cart,
+          {
             product: productToAdd,
             amount: 1,
             id: productToAdd.id,
           },
+        ]);
+      }
+    } else if (cart.length === 0) {
+      setCart([
+        {
+          product: productToAdd,
+          amount: 1,
+          id: productToAdd.id,
         },
       ]);
     }
@@ -60,8 +59,11 @@ export default function Home() {
   };
 
   const getTotalSum = () => {
-    let number = cart.reduce((sum, { price }) => sum + price, 0);
-    let roundedNumber = Math.round(number * 100) / 100;
+    let number = cart.reduce(
+      (sum, product) => sum + product.product.price * product.amount,
+      0
+    );
+    let roundedNumber = number.toFixed(2);
     return roundedNumber;
   };
 
