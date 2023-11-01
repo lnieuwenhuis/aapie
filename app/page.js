@@ -19,9 +19,10 @@ export default function Home() {
   }, []);
 
   const addToCart = (productToAdd) => {
+    console.log(cart);
     if (cart.length > 0) {
       cart.forEach((product, k) => {
-        if (product.product.title === productToAdd.title) {
+        if (product.product.id === productToAdd.id) {
           product.amount = product.amount + 1;
           removeFromCart(product.product);
         } else if (product.product.title !== productToAdd.title) {
@@ -31,6 +32,7 @@ export default function Home() {
               ...{
                 product: productToAdd,
                 amount: 1,
+                id: productToAdd.id,
               },
             },
           ]);
@@ -43,6 +45,7 @@ export default function Home() {
           ...{
             product: productToAdd,
             amount: 1,
+            id: productToAdd.id,
           },
         },
       ]);
